@@ -4,10 +4,12 @@ import {
   Get,
   NotFoundException,
   Param,
+  ParseIntPipe,
   Post,
   Query,
 } from '@nestjs/common';
 import {
+  ApiBadRequestResponse,
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -33,8 +35,8 @@ export class UsersController {
   @ApiOkResponse({ type: User, description: 'Return a user based on his url' })
   @ApiNotFoundResponse({ description: 'User not found' })
   @Get(':id')
-  getUser(@Param('id') id: string): User {
-    const user = this.usersService.findOne(+id);
+  getUser(@Param('id', ParseIntPipe) id: number): User {
+    const user = this.usersService.findOne(id);
 
     if (!user) throw new NotFoundException();
 
@@ -42,6 +44,7 @@ export class UsersController {
   }
 
   @ApiCreatedResponse({ type: User, description: 'Creates a new user' })
+  @ApiBadRequestResponse({ description: 'Bad request' })
   @Post()
   createUser(@Body() body: CreateUserDto): User {
     return this.usersService.createUser(body);
