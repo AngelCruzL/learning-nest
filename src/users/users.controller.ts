@@ -1,6 +1,15 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  NotFoundException,
+  Param,
+  Post,
+  Query,
+} from '@nestjs/common';
 import {
   ApiCreatedResponse,
+  ApiNotFoundResponse,
   ApiOkResponse,
   ApiQuery,
   ApiTags,
@@ -22,9 +31,14 @@ export class UsersController {
   }
 
   @ApiOkResponse({ type: User, description: 'Return a user based on his url' })
+  @ApiNotFoundResponse({ description: 'User not found' })
   @Get(':id')
   getUser(@Param('id') id: string): User {
-    return this.usersService.findOne(+id);
+    const user = this.usersService.findOne(+id);
+
+    if (!user) throw new NotFoundException();
+
+    return user;
   }
 
   @ApiCreatedResponse({ type: User, description: 'Creates a new user' })
